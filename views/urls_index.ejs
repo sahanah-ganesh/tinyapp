@@ -1,26 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-  <h1>TinyApp</h1>
-  <a href="#">Create New TinyURL</a>
+    <% include partials/_header %>
 </head>
-
-
-
 <body style="font-size:20px; padding:50px;">
-   <ul>
 
+    <h3>My URLs</h3>
     <% for(var short in urls) { %>
-      <li><%= urls[short] %> - <%= short %></li>
+      <li><b><%= short %></b> : <%= urls[short] %></li>
     <% }; %>
 
-  </ul>
 </body>
 </html>
 
