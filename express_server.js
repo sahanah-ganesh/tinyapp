@@ -30,3 +30,10 @@ app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+app.get("/urls/:shortURL", (req, res) => {
+  var short = req.params.shortURL;
+  let templateVars = { shortURL: short,
+                       longURL: urlDatabase[short] };
+  res.render("urls_show", templateVars);
+});
