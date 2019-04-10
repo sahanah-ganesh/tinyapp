@@ -12,11 +12,17 @@
 <% if (username) { %>
   <h2>Logged in as <%= username %></h2>
 
+  <form method="POST" action="/logout">
+
+     <input value = "Logout" type = "submit" >
+
+  </form>
+
 <% } else { %>
 
 <form method="POST" action="/login">
 
-  <input type = "text" name = "username" >
+  <input type = "text" name = "username" placeholder = "username">
   <input value = "Sign in" type = "submit" >
 
 </form>

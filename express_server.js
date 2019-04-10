@@ -90,3 +90,13 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post("/logout", (req, res) => {
+  const username = req.body.username;
+  cookieParser.JSONCookie(username);
+  res.clearCookie("username", username);
+  res.redirect("/urls");
+});
+
+
+
+
