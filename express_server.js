@@ -7,6 +7,7 @@ var express = require("express");
 var app = express();
 var PORT = 8080;
 
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -75,6 +76,11 @@ app.post("/urls/:shortURL/update", (req, res) => {
   const updateURL = req.body.updated;
   urlDatabase[req.params.shortURL] = updateURL;
   res.redirect("/urls/");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
 });
 
 
