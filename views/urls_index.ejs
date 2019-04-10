@@ -7,18 +7,15 @@
 
     <h3>My URLs</h3>
 
-    <% for(var short in urls) { %>
+    <% for(var shortURL in urls) { %>
 
-    <form method="POST" action="/urls/<%= short %>/delete">
+    <form method="POST" action="/urls/<%= shortURL %>/delete">
 
-      <li>
+        <%= shortURL %> → <%= urls[shortURL] %>
 
-        <b><%= short %></b>:
-        <%= urls[short] %>
+        <a href="/urls/<%= shortURL %>"> Edit </a>
 
-      </li>
-
-        <input value = "Delete" type = "submit" >
+        <input value = "Delete 🗑" type = "submit" >
 
     </form>
 
