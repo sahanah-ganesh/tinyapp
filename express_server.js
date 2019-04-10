@@ -57,6 +57,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  const longURL = `/urls/${req.params.shortURL}`
+  res.redirect(longURL);
+});
+
+app.get("/u/:shortURL", (req, res) => {
   const longURL = req.body.longURL;
   res.redirect(longURL);
 });
