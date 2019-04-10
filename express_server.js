@@ -7,6 +7,8 @@ var express = require("express");
 var app = express();
 var PORT = 8080;
 
+var cookieParser = require('cookie-parser')
+app.use(cookieParser())
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -35,18 +37,21 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase,
+                       username: req.cookies['username'] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies['username'] };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let templateVars = { shortURL: shortURL,
-                       longURL: urlDatabase[shortURL] };
+                       longURL: urlDatabase[shortURL],
+                       username: req.cookies['username'] };
   res.render("urls_show", templateVars);
 });
 
@@ -79,9 +84,9 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  const username = req.body.username;
+  cookieParser.JSONCookie(username);
+  res.cookie("username", username);
   res.redirect("/urls");
 });
-
-
 
