@@ -20,6 +20,19 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -34,6 +47,11 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+app.get("/register", (req, res) => {
+  const templateVars = {username: undefined};
+  res.render("urls_register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -55,32 +73,17 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL
+  let longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
   console.log(req.body);
   let urlKey = generateRandomString();
   urlDatabase[urlKey] = req.body.longURL;
   res.redirect(`/urls/${urlKey}`);
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = `/urls/${req.params.shortURL}`
-  res.redirect(longURL);
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = req.body.longURL;
-  res.redirect(longURL);
-});
-
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
-});
-
-app.post("/urls/:shortURL/update", (req, res) => {
-  const updateURL = req.body.updated;
-  urlDatabase[req.params.shortURL] = updateURL;
-  res.redirect("/urls/");
 });
 
 app.post("/login", (req, res) => {
@@ -97,6 +100,21 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL/update", (req, res) => {
+  const updateURL = req.body.updated;
+  urlDatabase[req.params.shortURL] = updateURL;
+  res.redirect("/urls/");
+});
 
 
+// app.post("/register", (req, res) => {
+//   const newUser = req.body.username;
 
+// })
+
+// urlDatabase[urlKey] = req.body.longURL;

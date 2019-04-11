@@ -7,14 +7,16 @@
 <title>TinyApp</title>
 <h1>TinyApp</h1>
 
-<a href="#">Create New TinyURL</a>
+
+<!-- <a href="#">Create New TinyURL</a> -->
+
 
 <% if (username) { %>
-  <h2>Logged in as <%= username %></h2>
+  <h2>Logged in as: <%= username %></h2>
 
   <form method="POST" action="/logout">
 
-     <input value = "Logout" type = "submit" >
+     <button type = "submit" class = "btn btn-primary">Logout</button>
 
   </form>
 
@@ -22,8 +24,11 @@
 
 <form method="POST" action="/login">
 
-  <input type = "text" name = "username" placeholder = "username">
-  <input value = "Sign in" type = "submit" >
+  <h5>Username:</h5>
+
+  <input type = "text" name = "username">
+  <br>
+  <button type = "submit" class = "btn btn-primary">Login</button>
 
 </form>
 
