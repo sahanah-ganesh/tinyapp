@@ -105,10 +105,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/urls/:shortURL/update", (req, res) => {
+app.post("/urls/:shortURL", (req, res) => {
   const updateURL = req.body.updated;
   urlDatabase[req.params.shortURL] = updateURL;
-  res.redirect("/urls/");
+  res.redirect("/urls");
 });
 
 
