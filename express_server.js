@@ -3,6 +3,15 @@ function generateRandomString() {
   return newURL;
 }
 
+function findUserByEmail(email, users) {
+  for (var user_ID in users) {
+    if (email === users[user_ID]["email"]) {
+      return false;
+    }
+  }
+  return true;
+};
+
 var express = require("express");
 var app = express();
 var PORT = 8080;
@@ -79,6 +88,28 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.post("/register", (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+
+  if (!email || !password) {
+    res.statusCode = 400;
+    res.end("Unknown");
+  } else if (findUserByEmail(email, users) === true) {
+    let user_ID = generateRandomString();
+    users[user_ID] = {id: user_ID,
+                      email: email,
+                      password: password}
+
+    cookieParser.JSONCookie(user_ID)
+    res.cookie("user_ID", user_ID);
+    res.redirect("/urls");
+  } else {
+    res.statusCode = 400;
+    res.end("Unknown");
+  }
+});
+
 app.post("/urls", (req, res) => {
   console.log(req.body);
   let urlKey = generateRandomString();
@@ -112,9 +143,3 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 
-// app.post("/register", (req, res) => {
-//   const newUser = req.body.username;
-
-// })
-
-// urlDatabase[urlKey] = req.body.longURL;
