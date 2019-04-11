@@ -4,8 +4,8 @@ function generateRandomString() {
 }
 
 function findUserByEmail(email, users) {
-  for (var user_ID in users) {
-    if (email === users[user_ID]["email"]) {
+  for (var user_id in users) {
+    if (email === users[user_id]["email"]) {
       return false;
     }
   }
@@ -59,18 +59,18 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {username: undefined};
+  const templateVars = {users: undefined};
   res.render("urls_register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase,
-                       username: req.cookies['username'] };
+                       users: req.cookies['user_id'] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies['username'] };
+  let templateVars = { users: req.cookies['user_id'] };
   res.render("urls_new", templateVars);
 });
 
@@ -78,7 +78,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let templateVars = { shortURL: shortURL,
                        longURL: urlDatabase[shortURL],
-                       username: req.cookies['username'] };
+                       users: req.cookies['user_id'] };
   res.render("urls_show", templateVars);
 });
 
@@ -96,13 +96,13 @@ app.post("/register", (req, res) => {
     res.statusCode = 400;
     res.end("Unknown");
   } else if (findUserByEmail(email, users) === true) {
-    let user_ID = generateRandomString();
-    users[user_ID] = {id: user_ID,
+    let user_id = generateRandomString();
+    users[user_id] = {id: user_id,
                       email: email,
                       password: password}
 
-    cookieParser.JSONCookie(user_ID)
-    res.cookie("user_ID", user_ID);
+    cookieParser.JSONCookie(user_id)
+    res.cookie("user_id", user_id);
     res.redirect("/urls");
   } else {
     res.statusCode = 400;
@@ -118,16 +118,16 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  cookieParser.JSONCookie(username);
-  res.cookie("username", username);
+  const user_id = req.body.user_id;
+  cookieParser.JSONCookie(user_id);
+  res.cookie("users", user_id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  const username = req.body.username;
-  cookieParser.JSONCookie(username);
-  res.clearCookie("username", username);
+  const user_id = req.body.user_id;
+  cookieParser.JSONCookie(user_id);
+  res.clearCookie("users", user_id);
   res.redirect("/urls");
 });
 
