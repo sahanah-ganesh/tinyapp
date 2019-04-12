@@ -1,20 +1,19 @@
-<% if (email) { %>
-
-  <h2>Logged in as: <%= email %></h2>
+<% if (user) { %>
 
   <form method="POST" action="/logout">
 
+    <h2>Logged in as: <%= user.email %></h2>
+
      <button type = "submit" class = "btn btn-primary">Logout</button>
 
+  </form>
 
 <% } else { %>
 
-<form method="POST" action="/login">
 
   <a href="/login">Login</a> |
   <a href="/register">Register</a>
 
-  <br>
 
 </form>
 
