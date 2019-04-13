@@ -23,7 +23,7 @@
 
     <form method="POST" action="/urls/<%= shortURL %>/delete">
 
-        <%= shortURL %> → <%= urls[shortURL] %>
+        <%= shortURL %> → <%= urls[shortURL].longURL %>
 
         <a href="/urls/<%= shortURL %>"> Edit </a>
 
