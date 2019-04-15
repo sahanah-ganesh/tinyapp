@@ -54,16 +54,16 @@ function hasher(password) {
 
 function urlsForUser(id) {
 
-  let userURLS = {};
+  let urls = {};
 
-  for (let urls in urlDatabase) {
-    let shortURL = urlDatabase[urls].shortURL;
+  for (let urlID in urlDatabase) {
+    let shortURL = urlDatabase[urlID].shortURL;
 
-    if (urlDatabase[urls].userID === id) {
-      userURLS[shortURL] = urlDatabase[urls];
+    if (urlDatabase[urlID].userID === id) {
+      urls[shortURL] = urlDatabase[urlID];
     }
   }
-  return userURLS;
+  return urls;
 };
 
 // ____________________________________________________________________________
@@ -93,6 +93,7 @@ app.get('/', (req, res) => {
   res.redirect('/urls');
 
 });
+
 
 // GET /urls
 
@@ -124,6 +125,7 @@ app.get('/urls', (req, res) => {
     res.render('urls_index', templateVars);
   }
 });
+
 
 // GET /urls/new
 
@@ -169,11 +171,11 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/:id', (req, res) => {
 
-  let shortURL = req.params.id;
-
   if(!req.session.user_id) {
     return res.status(401).send('Please login or register');
   }
+
+  let shortURL = req.params.id;
 
   if(!urlDatabase[shortURL]) {
     return res.status(404).send('TinyURL does not exist');
@@ -213,7 +215,13 @@ app.get('/u/:id', (req, res) => {
 });
 
 
+// POST /urls
 
+// if user is logged in:
+// generates a short URL, saves it, and associates it with the user
+// redirects to /urls/:id, where :id matches the ID of the newly saved URL
+// if user is not logged in:
+// (Minor) returns HTML with a relevant error message
 
 app.post('/urls', (req, res) => {
 
@@ -225,35 +233,99 @@ app.post('/urls', (req, res) => {
   let longURL = req.body.longURL;
 
   urlDatabase[shortURL] = {'longURL': longURL,
-                           'user':    users[req.session.user_id].id}
+                           'userID':  users[req.session.user_id].id}
 
   res.redirect(`/urls/${shortURL}`);
 });
 
 
+// POST /urls/:id
+
+// if user is logged in and owns the URL for the given ID:
+// updates the URL
+// redirects to /urls
+// if user is not logged in:
+// (Minor) returns HTML with a relevant error message
+// if user is logged it but does not own the URL for the given ID:
+// (Minor) returns HTML with a relevant error message
+
 app.post('/urls/:id', (req, res) => {
+
+  if(!req.session.user_id) {
+    return res.status(401).send('Please login or register');
+  }
+
+  let shortURL = req.params.id;
+
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
+    return res.status(403).send('TinyURL does not belong to you');
+  }
+
   const updateURL = req.body.updated;
-  let short = req.params.shortURL;
-  urlDatabase[short]['longURL'] = updateURL;
+
+  urlDatabase[shortURL].longURL. = updateURL;
+
   res.redirect('/urls');
+
 });
 
+
+// POST /urls/:id/delete
+// if user is logged in and owns the URL for the given ID:
+// deletes the URL
+// redirects to /urls
+// if user is not logged in:
+// (Minor) returns HTML with a relevant error message
+// if user is logged it but does not own the URL for the given ID:
+// (Minor) returns HTML with a relevant error message
 
 app.post('/urls/:id/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+
+  if(!req.session.user_id) {
+    return res.status(401).send('Please login or register');
+  }
+
+  let shortURL = req.params.id;
+
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
+    return res.status(403).send('TinyURL does not belong to you');
+  }
+
+  delete urlDatabase[shortURL];
   res.redirect('/urls');
 });
 
+
+// GET /login
+
+// if user is logged in:
+// (Minor) redirects to /urls
+// if user is not logged in:
+// returns HTML with:
+// a form which contains:
+// input fields for email and password
+// submit button that makes a POST request to /login
 
 app.get('/login', (req, res) => {
 
   if (!req.session.user_id) {
     return res.render('urls_login');
   }
+
   res.redirect('/urls');
 
 });
 
+
+// GET /register
+
+// if user is logged in:
+// (Minor) redirects to /urls
+// if user is not logged in:
+// returns HTML with:
+// a form which contains:
+// input fields for email and password
+// a register button that makes a POST request to /register
 
 app.get('/register', (req, res) => {
 
