@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(cookieSession({
   name: 'session',
-  keys: ['keys']
+  keys: ['keys'],
   maxAge: 24 * 60 * 60 * 1000 }));
 
 
@@ -29,9 +29,9 @@ const urlDatabase = {
 };
 
 const users = {
-  'aJ48lW': { id:       'aJ48lW',
-              email:    'a@b.com',
-              password: bcrypt.hashSync("123", 10)   },
+'aJ48lW': { id:       'aJ48lW',
+            email:    'a@b.com',
+            password:  bcrypt.hashSync("123", 10)   },
 
  'user2RandomID': { id:       'user2RandomID',
                     email:    'b@c',
@@ -46,16 +46,6 @@ function generateRandomString() {
   return string;
 }
 
-function findUserByEmail(email, users) {
-
-  for (let userKey in users) {
-    if (email === users[userKey].email) {
-      return userKey;
-    }
-  }
-  return false;
-}
-
 function hasher(password) {
 
   let hashPass = bcrypt.hashSync(password, 10);
@@ -66,11 +56,11 @@ function urlsForUser(id) {
 
   let userURLS = {};
 
-  for (let urlKey in urlDatabase) {
-    let shortURL = urlDatabase[urlKey].shortURL;
+  for (let urls in urlDatabase) {
+    let shortURL = urlDatabase[urls].shortURL;
 
-    if (urlDatabase[urlKey].userID === id) {
-      userURLS[shortURL] = urlDatabase[urlKey];
+    if (urlDatabase[urls].userID === id) {
+      userURLS[shortURL] = urlDatabase[urls];
     }
   }
   return userURLS;
@@ -114,9 +104,6 @@ app.get('/', (req, res) => {
 // the short URL's matching long URL
 // an edit button which makes a GET request to /urls/:id
 // a delete button which makes a POST request to /urls/:id/delete
-// (Stretch) the date the short URL was created
-// (Stretch) the number of times the short URL was visited
-// (Stretch) the number number of unique visits for the short URL
 // (Minor) a link to "Create a New Short Link" which makes a GET request to /urls/new
 // if user is not logged in:
 // returns HTML with a relevant error message
@@ -127,12 +114,12 @@ app.get('/urls', (req, res) => {
     return res.status(400).send('Please login or register');
   }
 
-  let userKey = users[req.session.user_id];
+  let user = users[req.session.user_id];
 
   if (user !== undefined) {
 
-    let templateVars = {'userKey': userKey,
-                        'urls':    urlsForUser(req.session.user_id) };
+    let templateVars = {'user': user,
+                        'urls': urlsForUser(req.session.user_id) };
 
     res.render('urls_index', templateVars);
   }
@@ -156,14 +143,13 @@ app.get('/urls/new', (req, res) => {
     return res.redirect('/login');
   }
 
-  let inputEmail = req.params.email;
+  let user = users[req.session.user_id];
 
-  let templateVars = { 'userID': req.session.user_id,
-                        urls:    urlsForUser(req.session.user_id),
-                       'email':  inputEmail };
+  let templateVars = { 'user': user };
 
   res.render('urls_new', templateVars);
 });
+
 
 // GET /urls/:id
 
@@ -174,9 +160,6 @@ app.get('/urls/new', (req, res) => {
 // a form which contains:
 // the corresponding long URL
 // an update button which makes a POST request to /urls/:id
-// (Stretch) the date the short URL was created
-// (Stretch) the number of times the short URL was visited
-// (Stretch) the number of unique visits for the short URL
 // if a URL for the given ID does not exist:
 // (Minor) returns HTML with a relevant error message
 // if user is not logged in:
@@ -186,39 +169,50 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/:id', (req, res) => {
 
-  let user_id = req.session.user_id;
-  let shortURL = req.params.shortURL;
+  let shortURL = req.params.id;
 
-  if(!user_id) {
+  if(!req.session.user_id) {
     return res.status(401).send('Please login or register');
   }
 
   if(!urlDatabase[shortURL]) {
-    return res.status(400).send('TinyURL does not exist');
+    return res.status(404).send('TinyURL does not exist');
   }
 
-  if (user_id !== urlDatabase[shortURL].userID) {
-    res.redirect('/login');
+  if (req.session.user_id !== urlDatabase[shortURL].userID) {
+    return res.status(403).send('TinyURL does not belong to you');
   }
 
-  let email = req.params.email;
-  let longURL = req.params.longURL;
+  let longURL = urlDatabase[shortURL].longURL;
 
   let templateVars = { 'shortURL': shortURL,
                        'longURL':  longURL,
-                       'email':    email,
-                       'userID':   user_id};
+                       'userID':   req.session.user_id};
 
   res.render('urls_show', templateVars);
 });
 
 
+// GET /u/:id
+
+// if URL for the given ID exists:
+// redirects to the corresponding long URL
+// if URL for the given ID does not exist:
+// (Minor) returns HTML with a relevant error message
+
 app.get('/u/:id', (req, res) => {
-  let shortURL = req.params.shortURL;
+
+  let shortURL = req.params.id;
+
+  if(!urlDatabase[shortURL]) {
+    return res.status(404).send('TinyURL does not exist!');
+  }
+
   let longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
-  //send error if tiny url doesn't exist
 });
+
+
 
 
 app.post('/urls', (req, res) => {
@@ -230,8 +224,8 @@ app.post('/urls', (req, res) => {
   let shortURL = generateRandomString();
   let longURL = req.body.longURL;
 
-  urlDatabase[shortURL] = {'longURL':  longURL,
-                           'userKey':  users[req.session.user_id].id}
+  urlDatabase[shortURL] = {'longURL': longURL,
+                           'user':    users[req.session.user_id].id}
 
   res.redirect(`/urls/${shortURL}`);
 });
