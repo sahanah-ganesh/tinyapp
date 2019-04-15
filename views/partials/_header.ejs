@@ -1,16 +1,8 @@
-<header>
+<% if (userKey) { %>
 
-  <h1>Tiny App</h1>
-
-  <p><a href= "/urls/new"> Create New TinyURL</a></p>
-
-</header>
-
-<% if (user) { %>
+    <h4>Logged in as: <%= userKey.email %></h4>
 
   <form method="POST" action="/logout">
-
-    <h4>Logged in as: <%= inputEmail %></h4>
 
      <button type = "submit" class = "btn btn-primary">Logout</button>
 

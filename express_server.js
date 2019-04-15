@@ -18,6 +18,7 @@ app.use(cookieSession({
 
 app.set('view engine', 'ejs');
 
+// ____________________________________________________________________________
 
 const urlDatabase = {
   b6UTxQ: { longURL:'https://www.tsn.ca',
@@ -37,78 +38,116 @@ const users = {
                     password: 'abc' }
 };
 
+// ____________________________________________________________________________
+
 function generateRandomString() {
+
   let string = Math.random().toString(36).substring(7);
   return string;
 }
 
 function findUserByEmail(email, users) {
-  for (let userID in users) {
-    if (email === users[userID].email) {
-      return userID;
+
+  for (let userKey in users) {
+    if (email === users[userKey].email) {
+      return userKey;
     }
   }
   return false;
 }
 
 function hasher(password) {
+
   let hashPass = bcrypt.hashSync(password, 10);
   return hashPass;
 }
 
 function urlsForUser(id) {
+
   let userURLS = {};
 
-  for (let urls in urlDatabase) {
-    let shortURL = urlDatabase[urls].shortURL;
+  for (let urlKey in urlDatabase) {
+    let shortURL = urlDatabase[urlKey].shortURL;
 
-    if (urlDatabase[urls].userID === id) {
-      userURLS[shortURL] = urlDatabase[urls];
+    if (urlDatabase[urlKey].userID === id) {
+      userURLS[shortURL] = urlDatabase[urlKey];
     }
   }
   return userURLS;
 };
 
+// ____________________________________________________________________________
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+app.get('/urls.json', (req, res) => {
+  res.json(urlDatabase);
+});
+
+// ____________________________________________________________________________
+
+// GET /
+
+// if user is logged in:
+// (Minor) redirect to /urls
+// if user is not logged in:
+// (Minor) redirect to /login
 
 app.get('/', (req, res) => {
 
   if(!req.session.user_id) {
     return res.redirect('/login');
   }
-  res.redirect('urls');
+  res.redirect('/urls');
 
 });
 
+// GET /urls
 
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
+// if user is logged in:
+// returns HTML with:
+// the site header (see Display Requirements above)
+// a list (or table) of URLs the user has created, each list item containing:
+// a short URL
+// the short URL's matching long URL
+// an edit button which makes a GET request to /urls/:id
+// a delete button which makes a POST request to /urls/:id/delete
+// (Stretch) the date the short URL was created
+// (Stretch) the number of times the short URL was visited
+// (Stretch) the number number of unique visits for the short URL
+// (Minor) a link to "Create a New Short Link" which makes a GET request to /urls/new
+// if user is not logged in:
+// returns HTML with a relevant error message
 
 app.get('/urls', (req, res) => {
 
   if (!req.session.user_id) {
-    return res.redirect('/login');
+    return res.status(400).send('Please login or register');
   }
 
-  let shortURL = req.params.shortURL;
-  let inputEmail = req.params.email;
-  let foundUser = findUserByEmail(inputEmail, users);
-  let email = foundUser.email;
+  let userKey = users[req.session.user_id];
 
-  let templateVars = { 'user_id': req.session.user_id,
-                       'user':    users,
-                       'urls':    urlsForUser(req.session.user_id),
-                       'email':   email };
+  if (user !== undefined) {
 
-  res.render('urls_index', templateVars);
+    let templateVars = {'userKey': userKey,
+                        'urls':    urlsForUser(req.session.user_id) };
 
+    res.render('urls_index', templateVars);
+  }
 });
+
+// GET /urls/new
+
+// if user is logged in:
+// returns HTML with:
+// the site header (see Display Requirements above)
+// a form which contains:
+// a text input field for the original (long) URL
+// a submit button which makes a POST request to /urls
+// if user is not logged in:
+// redirects to the /login page
 
 
 app.get('/urls/new', (req, res) => {
@@ -126,6 +165,24 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+// GET /urls/:id
+
+// if user is logged in and owns the URL for the given ID:
+// returns HTML with:
+// the site header (see Display Requirements above)
+// the short URL (for the given ID)
+// a form which contains:
+// the corresponding long URL
+// an update button which makes a POST request to /urls/:id
+// (Stretch) the date the short URL was created
+// (Stretch) the number of times the short URL was visited
+// (Stretch) the number of unique visits for the short URL
+// if a URL for the given ID does not exist:
+// (Minor) returns HTML with a relevant error message
+// if user is not logged in:
+// returns HTML with a relevant error message
+// if user is logged it but does not own the URL with the given ID:
+// returns HTML with a relevant error message
 
 app.get('/urls/:id', (req, res) => {
 
@@ -163,6 +220,7 @@ app.get('/u/:id', (req, res) => {
   //send error if tiny url doesn't exist
 });
 
+
 app.post('/urls', (req, res) => {
 
   if(!req.session.user_id) {
@@ -173,8 +231,7 @@ app.post('/urls', (req, res) => {
   let longURL = req.body.longURL;
 
   urlDatabase[shortURL] = {'longURL':  longURL,
-                           'shortURL': shortURL,
-                           'userID':   req.session.user_id}
+                           'userKey':  users[req.session.user_id].id}
 
   res.redirect(`/urls/${shortURL}`);
 });
