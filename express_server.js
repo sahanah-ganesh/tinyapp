@@ -18,6 +18,7 @@ app.use(cookieSession({
 
 app.set('view engine', 'ejs');
 
+
 // ____________________________________________________________________________
 
 const urlDatabase = {
@@ -31,11 +32,11 @@ const urlDatabase = {
 const users = {
 'aJ48lW': { id:       'aJ48lW',
             email:    'a@b.com',
-            password:  bcrypt.hashSync("123", 10)   },
+            password: '123'   },
 
- 'user2RandomID': { id:       'user2RandomID',
-                    email:    'b@c',
-                    password: 'abc' }
+'user2RandomID': { id:       'user2RandomID',
+                   email:    'b@c',
+                   password: 'abc' }
 };
 
 // ____________________________________________________________________________
@@ -44,12 +45,6 @@ function generateRandomString() {
 
   let string = Math.random().toString(36).substring(7);
   return string;
-}
-
-function hasher(password) {
-
-  let hashPass = bcrypt.hashSync(password, 10);
-  return hashPass;
 }
 
 function urlsForUser(id) {
@@ -65,6 +60,12 @@ function urlsForUser(id) {
   }
   return urls;
 };
+
+function hasher(password) {
+
+  let hashPass = bcrypt.hashSync(password, 10);
+  return hashPass;
+}
 
 // ____________________________________________________________________________
 
@@ -87,10 +88,12 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/', (req, res) => {
 
+  res.redirect('/urls');
+
   if(!req.session.user_id) {
     return res.redirect('/login');
   }
-  res.redirect('/urls');
+
 
 });
 
@@ -117,7 +120,7 @@ app.get('/urls', (req, res) => {
 
   let user = users[req.session.user_id];
 
-  if (user !== undefined) {
+  if (!user) {
 
     let templateVars = {'user': user,
                         'urls': urlsForUser(req.session.user_id) };
@@ -236,6 +239,7 @@ app.post('/urls', (req, res) => {
                            'userID':  users[req.session.user_id].id}
 
   res.redirect(`/urls/${shortURL}`);
+
 });
 
 
@@ -308,11 +312,11 @@ app.post('/urls/:id/delete', (req, res) => {
 
 app.get('/login', (req, res) => {
 
-  if (!req.session.user_id) {
-    return res.render('urls_login');
-  }
+  res.render('urls_login');
 
-  res.redirect('/urls');
+  // if (req.session.user_id) {
+  //   return res.redirect('/urls');
+  // }
 
 });
 
@@ -329,13 +333,22 @@ app.get('/login', (req, res) => {
 
 app.get('/register', (req, res) => {
 
-  if(!req.session.user_id) {
-    return res.render('urls_register');
-  }
-  res.redirect('/urls');
+  res.render('urls_register');
+
+  // if(!req.session.user_id) {
+  //   return res.render('urls_register');
+  // }
+  // res.redirect('/urls');
 
 });
 
+// POST /login
+
+// if email and password params match an existing user:
+// sets a cookie
+// redirects to /urls
+// if email and password params don't match an existing user:
+// returns HTML with a relevant error message
 
 app.post('/login', (req, res) => {
 
@@ -353,6 +366,34 @@ app.post('/login', (req, res) => {
 
 });
 
+//   let inputEmail = req.body.email;
+//   let inputPass = req.body.pass;
+
+//   for (let user in users) {
+//     if (inputEmail === users[user].email && bcrypt.compareSync(inputPass, users[user]['password'])) {
+
+//       let email = req.body.email;
+//       let password = req.body.password;
+//       req.session['user_id'] = user_id;
+//       res.redirect('/urls');
+
+//     } else {
+//       res.status(403).send('Email or password incorrect');
+//     }
+//   }
+// });
+
+// POST /register
+
+// if email or password are empty:
+// returns HTML with a relevant error message
+// if email already exists:
+// returns HTML with a relevant error message
+// otherwise:
+// creates a new user
+// encrypts the new user's password with bcrypt
+// sets a cookie
+// redirects to /urls
 
 app.post('/register', (req, res) => {
 
@@ -382,14 +423,38 @@ app.post('/register', (req, res) => {
 
 });
 
+//   for (let user in users) {
+//     if (req.body.email === users[user]['email']) {
+//       res.status(400).send('Email already exists');
+//     }
+//   }
+
+//   if (req.body.email && req.body.password) {
+//     let userID = generateRandomString();
+//     let hashPass = bcrypt.hashSync(req.body.password, 10);
+
+//     users[userID] = {id:       userID,
+//                      email:    req.body.email,
+//                      password: hashPass   };
+
+//     req.session.user_id = userID;
+//     res.redirect('/urls');
+
+//   } else {
+//     res.status(400).send('Please enter email or password');
+//   }
+// });
+
+// POST /logout
+
+// deletes cookie
+// redirects to /urls
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id', req.session.user_id);
+
+  req.session = null;
   res.redirect('/login');
+
 });
-
-
-
-
 
 
