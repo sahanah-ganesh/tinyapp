@@ -11,18 +11,22 @@
 </head>
 <body style="font-size:20px; padding:50px;">
 
-  <form method="POST" action="/login">
-
   <h1>Tiny App</h1>
 
-    <h3>Login</h3>
+  <h3>Login</h3>
 
-    <h5>Email:</h5>
-    <input type = "email" name = "email" size = "50"><br>
+  <form method="POST" action="/login">
 
-    <h5>Password:</h5>
-    <input type = "password" name = "password" size = "50">
+    <label>
+      <h5>Email:</h5>
+      <input type="email" name="email" size="50"><br>
+    </label>
+    <br>
 
+    <label>
+      <h5>Password:</h5>
+      <input type="password" name="password" size="50">
+    </label>
     <br>
 
     <button type="submit" class="btn btn-primary">Login</button>

@@ -16,6 +16,8 @@
 
     <h3>My URLs</h3>
 
+    <a href="/urls/new">Create new TinyURL</a>
+
     <% for(let shortURL in urls) { %>
 
     <form method="POST" action="/urls/<%= shortURL %>/delete">
