@@ -21,8 +21,11 @@
 
 - Run the development web server using the node express_server.js command
 
-!["TinyApp Login Page"](http:sdfsdfdsf)
-!["TinyApp Register Page"]
-!["TinyApp Create New URL Page"]
-!["TinyApp Show URLs Page"]
+!["TinyApp Login Page"](https://github.com/sahanah-ganesh/tinyapp/blob/master/Screen%20Shot%202019-04-19%20at%204.35.15%20PM.png)
+
+!["TinyApp Register Page"](https://github.com/sahanah-ganesh/tinyapp/blob/master/Screen%20Shot%202019-04-19%20at%204.34.59%20PM.png)
+
+!["TinyApp Create New URL Page"](https://github.com/sahanah-ganesh/tinyapp/blob/master/Screen%20Shot%202019-04-19%20at%204.36.47%20PM.png)
+
+!["TinyApp Show URLs Page"](https://github.com/sahanah-ganesh/tinyapp/blob/master/Screen%20Shot%202019-04-19%20at%204.36.32%20PM.png)
 
