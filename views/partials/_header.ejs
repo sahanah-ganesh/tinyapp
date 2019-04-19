@@ -1,16 +1,23 @@
+<h1>Tiny App</h1>
+
 <% if (user) { %>
 
   <h4>Logged in as: <%= user.email %></h4>
 
   <form method="POST" action="/logout">
-    <button type = "submit" class = "btn btn-primary">Logout</button>
+
+    <button type="submit" class="btn btn-primary">Logout</button>
+
   </form>
 
 <% } else { %>
 
   <nav>
+
     <a href="/login">Login</a> |
+
     <a href="/register">Register</a>
+
   </nav>
 
 <% } %>

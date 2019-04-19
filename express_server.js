@@ -18,19 +18,19 @@ app.listen(PORT, () => { console.log(`Example app listening on port ${PORT}!`) }
 
 // ____________________________________________________________________________
 
-const urlDatabase = { b6UTxQ: { longURL:'https://www.tsn.ca',
-                                userID: 'aJ48lW'                },
+// const urlDatabase = { b6UTxQ: { longURL:'https://www.tsn.ca',
+//                                 userID: 'aJ48lW'                },
 
-                      i3BoGr: { longURL:'https://www.google.ca',
-                                userID: 'aJ48lW'                } };
+//                       i3BoGr: { longURL:'https://www.google.ca',
+//                                 userID: 'aJ48lW'                } };
 
-const users = { 'aJ48lW':        { id:       'aJ48lW',
-                                   email:    'a@b.com',
-                                   password: '123'      },
+// const users = { 'aJ48lW':        { id:       'aJ48lW',
+//                                    email:    'a@b.com',
+//                                    password: '123'      },
 
-                'user2RandomID': { id:       'user2RandomID',
-                                   email:    'b@c',
-                                   password: 'abc'            } };
+//                 'user2RandomID': { id:       'user2RandomID',
+//                                    email:    'b@c',
+//                                    password: 'abc'            } };
 
 // ____________________________________________________________________________
 
@@ -67,7 +67,6 @@ app.get('/urls.json', (req, res) => { res.json(urlDatabase) });
 // ____________________________________________________________________________
 
 // GET /
-
 // if user is logged in:
 // (Minor) redirect to /urls
 // if user is not logged in:
@@ -76,15 +75,13 @@ app.get('/urls.json', (req, res) => { res.json(urlDatabase) });
 app.get('/', (req, res) => {
 
   if(!req.session.user_id) {
-    res.redirect('/login');
+    return res.redirect('/login');
   }
-
     res.redirect('/urls');
 });
 
 
 // GET /urls
-
 // if user is logged in:
 // returns HTML with:
 // the site header (see Display Requirements above)
@@ -102,7 +99,7 @@ app.get('/urls', (req, res) => {
   let user = users[req.session.user_id];
 
   if (!user) {
-    res.redirect("/login");
+    return res.redirect("/login");
   }
 
     res.render('urls_index', { user: user,
@@ -111,7 +108,6 @@ app.get('/urls', (req, res) => {
 
 
 // GET /urls/new
-
 // if user is logged in:
 // returns HTML with:
 // the site header (see Display Requirements above)
@@ -125,7 +121,7 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
 
   if (!req.session.user_id) {
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 
     res.render('urls_new', { user: users[req.session.user_id] });
@@ -133,7 +129,6 @@ app.get('/urls/new', (req, res) => {
 
 
 // GET /urls/:id
-
 // if user is logged in and owns the URL for the given ID:
 // returns HTML with:
 // the site header (see Display Requirements above)
@@ -151,20 +146,20 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:id', (req, res) => {
 
   if(!req.session.user_id) {
-    res.status(401).send('Please login or register');
+    return res.status(401).send('Please login or register');
   }
 
     let shortURL = req.params.id;
 
     if(!urlDatabase[shortURL]) {
-      res.status(404).send('TinyURL does not exist');
+      return res.status(404).send('TinyURL does not exist');
     }
 
       if (req.session.user_id !== urlDatabase[shortURL].userID) {
-        res.status(403).send('TinyURL does not belong to you');
+        return res.status(403).send('TinyURL does not belong to you');
       }
 
-        res.render('urls_index', { user:     users[req.session.user_id],
+        res.render('urls_show', {  user:     users[req.session.user_id],
                                    urls:     urlsForUser(req.session.user_id),
                                    shortURL: shortURL,
                                    longURL:  urlDatabase[shortURL].longURL,
@@ -173,7 +168,6 @@ app.get('/urls/:id', (req, res) => {
 
 
 // GET /u/:id
-
 // if URL for the given ID exists:
 // redirects to the corresponding long URL
 // if URL for the given ID does not exist:
@@ -181,10 +175,11 @@ app.get('/urls/:id', (req, res) => {
 
 app.get('/u/:id', (req, res) => {
 
-  const shortURL = req.params.id;
+  let shortURL = req.params.id;
+  console.log(urlDatabase, shortURL);
 
   if(!urlDatabase[shortURL]) {
-    res.status(404).send('TinyURL does not exist!');
+    return res.status(404).send('TinyURL does not exist!');
   }
 
     let longURL = urlDatabase[shortURL].longURL;
@@ -193,7 +188,6 @@ app.get('/u/:id', (req, res) => {
 
 
 // POST /urls
-
 // if user is logged in:
 // generates a short URL, saves it, and associates it with the user
 // redirects to /urls/:id, where :id matches the ID of the newly saved URL
@@ -203,20 +197,19 @@ app.get('/u/:id', (req, res) => {
 app.post('/urls', (req, res) => {
 
   if(!req.session.user_id) {
-    res.status(401).send('Please login');
+    return res.status(401).send('Please login');
   }
 
     let shortURL = generateRandomString();
 
     urlDatabase[shortURL] = { longURL: req.body.longURL,
-                              userID:  users[req.session.user_id].id };
+                              'userID':  users[req.session.user_id].id };
 
-    res.redirect(`/urls/${shortURL}`);
+    res.redirect('/urls');
 });
 
 
 // POST /urls/:id
-
 // if user is logged in and owns the URL for the given ID:
 // updates the URL
 // redirects to /urls
@@ -228,13 +221,13 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
 
   if(!req.session.user_id) {
-    res.status(401).send('Please login or register');
+    return res.status(401).send('Please login or register');
   }
 
     let shortURL = req.params.id;
 
     if (req.session.user_id !== urlDatabase[shortURL].userID) {
-      res.status(403).send('TinyURL does not belong to you');
+      return res.status(403).send('TinyURL does not belong to you');
     }
 
       urlDatabase[shortURL].longURL = req.body.updated;
@@ -254,13 +247,13 @@ app.post('/urls/:id', (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
 
   if(!req.session.user_id) {
-    res.status(401).send('Please login or register');
+    return res.status(401).send('Please login or register');
   }
 
     let shortURL = req.params.id;
 
     if (req.session.user_id !== urlDatabase[shortURL].userID) {
-      res.status(403).send('TinyURL does not belong to you');
+      return res.status(403).send('TinyURL does not belong to you');
     }
 
       delete urlDatabase[shortURL];
@@ -269,7 +262,6 @@ app.post('/urls/:id/delete', (req, res) => {
 
 
 // GET /login
-
 // if user is logged in:
 // (Minor) redirects to /urls
 // if user is not logged in:
@@ -280,16 +272,14 @@ app.post('/urls/:id/delete', (req, res) => {
 
 app.get('/login', (req, res) => {
 
-  if (!req.session.user_id) {
-    res.render('urls_login');
+  if (req.session.user_id) {
+    return res.redirect('/urls');
   }
-
-    res.redirect('/urls');
+    res.render('urls_login');
 });
 
 
 // GET /register
-
 // if user is logged in:
 // (Minor) redirects to /urls
 // if user is not logged in:
@@ -300,15 +290,13 @@ app.get('/login', (req, res) => {
 
 app.get('/register', (req, res) => {
 
-  if (!req.session.user_id) {
-    res.redirect('/urls');
+  if (req.session.user_id) {
+    return res.redirect('/urls');
   }
-
     res.render('urls_register');
 });
 
 // POST /login
-
 // if email and password params match an existing user:
 // sets a cookie
 // redirects to /urls
@@ -322,7 +310,7 @@ app.post('/login', (req, res) => {
   let hashPass = hasher(inputPass);
   let foundUser = findUserByEmail(inputEmail, users);
 
-  if (!foundUser && !bcrypt.compareSync(inputPass, hashPass)) {
+  if (!foundUser || !bcrypt.compareSync(inputPass, hashPass)) {
     return res.status(400).send('Email or password incorrect');
   }
 
@@ -332,7 +320,6 @@ app.post('/login', (req, res) => {
 
 
 // POST /register
-
 // if email or password are empty:
 // returns HTML with a relevant error message
 // if email already exists:
@@ -349,20 +336,21 @@ app.post('/register', (req, res) => {
   let inputPassword = req.body.password;
 
   if (!inputEmail || !inputPassword) {
-    res.status(400).send('Please enter email or password');
+    return res.status(400).send('Please enter email or password');
   }
 
     let foundUser = findUserByEmail(inputEmail, users);
-    if (!foundUser) {
-      res.status(400).send('Email already exists');
+
+    if (foundUser) {
+      return res.status(400).send('Email already exists');
     }
 
       req.session.user_id = generateRandomString();
       let hashPass = hasher(inputPassword);
 
-      users['req.session.user_id'] = { id:       req.session.user_id,
-                                       email:    inputEmail,
-                                       password: hashPass };
+      users[req.session.user_id] = { id:       req.session.user_id,
+                                     email:    inputEmail,
+                                     password: hashPass };
 
       res.cookie('user_id', req.session.user_id);
       res.redirect('/urls');
@@ -370,7 +358,6 @@ app.post('/register', (req, res) => {
 
 
 // POST /logout
-
 // deletes cookie
 // redirects to /urls
 
