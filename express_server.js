@@ -18,19 +18,9 @@ app.listen(PORT, () => { console.log(`Example app listening on port ${PORT}!`) }
 
 // ____________________________________________________________________________
 
-// const urlDatabase = { b6UTxQ: { longURL:'https://www.tsn.ca',
-//                                 userID: 'aJ48lW'                },
+const urlDatabase = { };
 
-//                       i3BoGr: { longURL:'https://www.google.ca',
-//                                 userID: 'aJ48lW'                } };
-
-// const users = { 'aJ48lW':        { id:       'aJ48lW',
-//                                    email:    'a@b.com',
-//                                    password: '123'      },
-
-//                 'user2RandomID': { id:       'user2RandomID',
-//                                    email:    'b@c',
-//                                    password: 'abc'            } };
+const users = { };
 
 // ____________________________________________________________________________
 
